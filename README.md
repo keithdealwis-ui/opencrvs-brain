@@ -112,6 +112,28 @@ file is copied out of the vault.
 - **Pages that could not be represented faithfully:** none found in this
   run. GitBook's `.md` endpoints returned clean Markdown for every listed
   page.
+- **Change-detection paths, all verified:**
+  - *New*: the initial sync itself (`new=1270`).
+  - *Unchanged*: the idempotent repeat sync above.
+  - *Modified*: verified by forcing a stale `content_hash` on one real,
+    already-ingested page and re-running `sync.py` — it was correctly
+    reported as `modified` (not `new`), re-fetched, and its hash corrected;
+    since the underlying page hadn't actually changed upstream, that
+    synthetic run was reverted rather than committed.
+  - *Removed*: verified by injecting a synthetic manifest entry/file for a
+    page absent from the live catalogue and re-running `sync.py` — it was
+    moved to `99 - System/removed/<timestamp>/...` (content preserved, not
+    deleted), dropped from `manifest.json`, and logged in
+    `99 - System/sync-log.md` with its former source URL; reverted after
+    confirming, for the same reason.
+- **Obsidian open:** structurally validated — every one of the 1,270 pages
+  has well-formed YAML frontmatter (parsed and checked programmatically),
+  the folder tree contains no path collisions, and `.obsidian/` is present
+  with a minimal, valid config. `open`/the `obsidian://open?path=...` URI
+  were used to ask the already-running Obsidian app to load this vault, but
+  this session has no Screen Recording/Accessibility permission to confirm
+  the resulting window visually — worth Keith opening it once himself to
+  eyeball (`Obsidian → Open folder as vault` → this directory).
 
 ## Notes for the later capability layer (KEI-733 handover)
 
